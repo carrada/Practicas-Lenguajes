@@ -5,8 +5,8 @@
 
 data Elist a = L [(a,a)] deriving (Show, Eq)
 
-lp1 = L [(1,2),(4,3),(4,5)]
-lp2 = L [(2,4),(8,8),(7,0)]
+lp1 = L [(1,2),(3,4),(9,8)]
+lp2 = L [(0,1),(3,7),(8,6),(5,4)]
 
 length2 :: (Elist a) -> Int
 length2 (L []) = 0
