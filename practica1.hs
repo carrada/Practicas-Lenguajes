@@ -55,3 +55,26 @@ update2 :: (Elist a) -> Int -> a -> (Elist a)
 update2 (L((a,b):xs)) 1 e = (L((e,b):xs))
 update2 (L((a,b):xs)) 2 e = (L((a,e):xs))
 update2 (L(x:xs)) int e = append2 (L [x]) (update2 (L xs) (int-2) e)
+
+replicate2 :: Int -> a -> EList a
+replicate2 k x = L (replicate (k `div` 2) (x, x))
+
+delfront2 :: EList a -> EList a
+delfront2 (L (_ : xs)) = L xs
+
+delcenter2 :: EList a -> EList a
+delcenter2 (L xs) = L (toPairs (take (k - 1) flatList ++ drop (k + 1) flatList))
+  where
+    -- k es la cantidad de pares originales (la mitad del total de elementos)
+    k = length xs
+
+    -- aplanar convierte la lista de tuplas en una lista de elementos individuales
+    aplanar [] = []
+    aplanar ((a,b):ys) = a : b : aplanar ys
+
+    -- aca guardamos la lista aplanada para no recalcularla
+    flatList = aplanar xs
+
+    -- toPairs lo que hace es que convierte una lista de elementos individuales de vuelta a tuplas
+    toPairs [] = []
+    toPairs (y1:y2:ys) = (y1, y2) : toPairs ys
