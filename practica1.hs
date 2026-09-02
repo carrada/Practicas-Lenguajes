@@ -2,6 +2,15 @@
 -- Juan Diego Hernandez Sanchez
 -- Carrada Rodriguez Cristopher Emiliano
 
+{-
+1. Explique por qué es imposible generar una lista de longitud impar con esta implementación.
+
+Respuesta:
+Es imposible generar una lista de longitud impar debido a que la estructura `EList` está definida como una lista de pares o tuplas de dos elementos: [(a,a)]
+Cada vez que se agrega un elemento a la lista interna de Haskell, esta agregando a fuerzas dos valores del tipo `a` al mismo tiempo. Si la lista interna tiene k tuplas, la lista EList va a tener 2k elementos.
+Osea que en Haskell no es posible tener una tupla incompleta o de un solo elemento cuando el tipo exige (a,a), la longitud total siempre será un número par).
+en resumen, la estructura misma hace imposible representar una cantidad impar de elementos.
+-}
 
 data Elist a = L [(a,a)] deriving (Show, Eq)
 
