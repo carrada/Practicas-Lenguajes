@@ -1,5 +1,5 @@
 -- Emilio Bocanegra Paniagua
--- Juan Diego Hernandez Sanchez
+-- Juan Diego Hernández Becerril
 -- Carrada Rodriguez Cristopher Emiliano
 
 {-
@@ -62,6 +62,15 @@ replicate2 k x = L (replicate (k `div` 2) (x, x))
 delfront2 :: EList a -> EList a
 delfront2 (L (_ : xs)) = L xs
 
+-- Elimina los dos últimos elementos
+delrear2 :: Seq2k a -> Seq2k a
+delrear2 (Seq2k xs) = Seq2k (eliminarFinal xs)
+  where
+    eliminarFinal [] = []
+    eliminarFinal [_] = []
+    eliminarFinal [_, _] = []
+    eliminarFinal (y:ys) = y : eliminarFinal ys
+
 delcenter2 :: EList a -> EList a
 delcenter2 (L xs) = L (toPairs (take (k - 1) flatList ++ drop (k + 1) flatList))
   where
@@ -78,3 +87,19 @@ delcenter2 (L xs) = L (toPairs (take (k - 1) flatList ++ drop (k + 1) flatList))
     -- toPairs lo que hace es que convierte una lista de elementos individuales de vuelta a tuplas
     toPairs [] = []
     toPairs (y1:y2:ys) = (y1, y2) : toPairs ys
+
+-- Elimina el primer y el último elemento
+delext2 :: Seq2k a -> Seq2k a
+delext2 (Seq2k xs) = 
+    case xs of
+        []     -> Seq2k []
+        [_]    -> Seq2k []
+        (_:ys) -> Seq2k (init ys)
+
+-- Convierte la secuencia personalizada a una lista estándar
+flat2 :: Seq2k a -> [a]
+flat2 (Seq2k xs) = xs
+
+-- Convierte una lista estándar a la secuencia personalizada
+toL2 :: [a] -> Seq2k a
+toL2 xs = Seq2k xs
