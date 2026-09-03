@@ -56,22 +56,20 @@ update2 (L((a,b):xs)) 1 e = (L((e,b):xs))
 update2 (L((a,b):xs)) 2 e = (L((a,e):xs))
 update2 (L(x:xs)) int e = append2 (L [x]) (update2 (L xs) (int-2) e)
 
-replicate2 :: Int -> a -> EList a
-replicate2 k x = L (replicate (k `div` 2) (x, x))
+replicate2 :: Int -> a -> (Elist a)
+replicate2 0 a = L[]
+replicate2 k x = append2 (L[(x,x)]) (replicate2 (k-2) x)
 
-delfront2 :: EList a -> EList a
+delfront2 :: Elist a -> Elist a
 delfront2 (L (_ : xs)) = L xs
 
 -- Elimina los dos últimos elementos
-delrear2 :: Seq2k a -> Seq2k a
-delrear2 (Seq2k xs) = Seq2k (eliminarFinal xs)
-  where
-    eliminarFinal [] = []
-    eliminarFinal [_] = []
-    eliminarFinal [_, _] = []
-    eliminarFinal (y:ys) = y : eliminarFinal ys
+delrear2 :: Elist a -> Elist a
+delrear2 (L []) = L[]
+delrear2 (L [(a,b)]) = L[]
+delrear2 (L (x:xs)) = append2 (L [x]) (delrear2 (L xs)) 
 
-delcenter2 :: EList a -> EList a
+delcenter2 :: Elist a -> Elist a
 delcenter2 (L xs) = L (toPairs (take (k - 1) flatList ++ drop (k + 1) flatList))
   where
     -- k es la cantidad de pares originales (la mitad del total de elementos)
@@ -88,18 +86,21 @@ delcenter2 (L xs) = L (toPairs (take (k - 1) flatList ++ drop (k + 1) flatList))
     toPairs [] = []
     toPairs (y1:y2:ys) = (y1, y2) : toPairs ys
 
--- Elimina el primer y el último elemento
-delext2 :: Seq2k a -> Seq2k a
-delext2 (Seq2k xs) = 
-    case xs of
-        []     -> Seq2k []
-        [_]    -> Seq2k []
-        (_:ys) -> Seq2k (init ys)
+delext2 :: Elist a -> Elist a
+delext2 (L []) = L []
+delext2 (L [(_,_)]) = L []
+delext2 (L ((_,b):xs)) = aux b xs
+  where
+    aux _ [] = L []
+    aux x [(a,_)] = L [(x,a)]
+    aux x ((a,b):ys) = append2 (L [(x,a)]) (aux b ys)
 
 -- Convierte la secuencia personalizada a una lista estándar
-flat2 :: Seq2k a -> [a]
-flat2 (Seq2k xs) = xs
+flat2 :: Elist a -> [a]
+flat2 (L []) = []
+flat2 (L((a,b):xs)) = [a,b] ++ (flat2(L xs))
 
 -- Convierte una lista estándar a la secuencia personalizada
-toL2 :: [a] -> Seq2k a
-toL2 xs = Seq2k xs
+toL2 :: [a] -> Elist a
+toL2 [] = L []
+toL2 (a:b:xs) = append2 (L[(a,b)]) (toL2 xs)
