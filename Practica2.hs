@@ -93,6 +93,61 @@ sust x e (Let a b c)
         aEstaEnE = sust a (Var "var") e /= e
         xEstaEnC = sust x (Var "var") c /= c
 
+--Funcion evalStep
+
+evalStep :: EAB -> EAB
+evalStep (Num n) = Num n
+evalStep (Bool b) = Bool b
+evalStep (Var x) = Var x
+evalStep (Suma (Num n1) (Num n2)) = Num (n1 + n2)
+evalStep (Suma v1@(Num _) e2) = Suma v1 (evalStep e2)
+evalStep (Suma e1 e2) = Suma (evalStep e1) e2
+evalStep (Prod (Num n1) (Num n2)) = Num (n1 * n2)
+evalStep (Prod v1@(Num _) e2) = Prod v1 (evalStep e2)
+evalStep (Prod e1 e2) = Prod (evalStep e1) e2
+evalStep (Suc (Num n)) = Num (n + 1)
+evalStep (Suc e) = Suc (evalStep e)
+evalStep (Pred (Num n)) = Num (n - 1)
+evalStep (Pred e) = Pred (evalStep e)
+evalStep (Not (Bool True)) = Bool False
+evalStep (Not (Bool False)) = Bool True
+evalStep (Not e) = Not (evalStep e)
+evalStep (IsZero (Num 0)) = Bool True
+evalStep (IsZero (Num _)) = Bool False
+evalStep (IsZero e) = IsZero (evalStep e)
+evalStep (Lt (Num n1) (Num n2)) = Bool (n1 < n2)
+evalStep (Lt v1@(Num _) e2) = Lt v1 (evalStep e2)
+evalStep (Lt e1 e2) = Lt (evalStep e1) e2
+evalStep (Gt (Num n1) (Num n2)) = Bool (n1 > n2)
+evalStep (Gt v1@(Num _) e2) = Gt v1 (evalStep e2)
+evalStep (Gt e1 e2) = Gt (evalStep e1) e2
+evalStep (Eq (Num n1) (Num n2)) = Bool (n1 == n2)
+evalStep (Eq (Bool b1) (Bool b2)) = Bool (b1 == b2)
+evalStep (Eq v1@(Num _) e2) = Eq v1 (evalStep e2)
+evalStep (Eq v1@(Bool _) e2) = Eq v1 (evalStep e2)
+evalStep (Eq e1 e2) = Eq (evalStep e1) e2
+evalStep (If (Bool True) e1 _) = e1
+evalStep (If (Bool False) _ e2) = e2
+evalStep (If cond e1 e2) = If (evalStep cond) e1 e2
+evalStep (Let x (Num n) e2) = sust x (Num n) e2
+evalStep (Let x (Bool b) e2) = sust x (Bool b) e2
+evalStep (Let x e1 e2) = Let x (evalStep e1) e2
 
 
 
+--Funcion evalDin
+evalDin :: EAB -> EAB
+evalDin e =
+    let e' = evalStep e
+    in if e == e'
+       then e           -- Estado bloqueado o valor final alcanzado
+       else evalDin e'  -- Si hubo un cambio, damos otro paso recursivamente
+
+
+-- Función isValid
+-- Evalúa la expresión al máximo y comprueba si el estado final es un valor.
+isValid :: EAB -> Bool
+isValid e = case evalDin e of
+           Num _  -> True
+           Bool _ -> True
+           _      -> False
