@@ -1,3 +1,7 @@
+--INTEGRANTES:
+-Emilio Bocanegra Paniagua
+-Juan Diego Hernández Becerril
+-Cristopher Emiliano Carrada
 type ID = String
 data EAB = Num Int | Var ID | Bool Bool
          | Suma EAB EAB | Prod EAB EAB
@@ -151,3 +155,79 @@ isValid e = case evalDin e of
            Num _  -> True
            Bool _ -> True
            _      -> False
+
+-- ==========================================
+-- 3 Semántica Estática
+-- ==========================================
+
+data Type = Nat | Boolean deriving (Eq, Show)
+type Ctx = [(ID, Type)]
+
+typeEAB :: Ctx -> EAB -> Type
+typeEAB _ (Num _) = Nat
+typeEAB _ (Bool _) = Boolean
+
+typeEAB ctx (Var x) = case lookup x ctx of
+    Just t  -> t
+    Nothing -> error ("Variable libre: " ++ x)
+
+typeEAB ctx (Suma e1 e2) =
+    case (typeEAB ctx e1, typeEAB ctx e2) of
+        (Nat, Nat) -> Nat
+        (t1, _) | t1 /= Nat -> error ("Expected Number: (" ++ show e1 ++ ")")
+        _ -> error ("Expected Number: (" ++ show e2 ++ ")")
+
+typeEAB ctx (Prod e1 e2) =
+    case (typeEAB ctx e1, typeEAB ctx e2) of
+        (Nat, Nat) -> Nat
+        (t1, _) | t1 /= Nat -> error ("Expected Number: (" ++ show e1 ++ ")")
+        _ -> error ("Expected Number: (" ++ show e2 ++ ")")
+
+typeEAB ctx (Suc e) =
+    if typeEAB ctx e == Nat then Nat
+    else error ("Expected Number: (" ++ show e ++ ")")
+
+typeEAB ctx (Pred e) =
+    if typeEAB ctx e == Nat then Nat
+    else error ("Expected Number: (" ++ show e ++ ")")
+
+typeEAB ctx (IsZero e) =
+    if typeEAB ctx e == Nat then Boolean
+    else error ("Expected Number: (" ++ show e ++ ")")
+
+typeEAB ctx (Not e) =
+    if typeEAB ctx e == Boolean then Boolean
+    else error ("Expected Boolean: (" ++ show e ++ ")")
+
+typeEAB ctx (Lt e1 e2) =
+    case (typeEAB ctx e1, typeEAB ctx e2) of
+        (Nat, Nat) -> Boolean
+        (t1, _) | t1 /= Nat -> error ("Expected Number: (" ++ show e1 ++ ")")
+        _ -> error ("Expected Number: (" ++ show e2 ++ ")")
+
+typeEAB ctx (Gt e1 e2) =
+    case (typeEAB ctx e1, typeEAB ctx e2) of
+        (Nat, Nat) -> Boolean
+        (t1, _) | t1 /= Nat -> error ("Expected Number: (" ++ show e1 ++ ")")
+        _ -> error ("Expected Number: (" ++ show e2 ++ ")")
+
+typeEAB ctx (Eq e1 e2) =
+    if typeEAB ctx e1 == typeEAB ctx e2 then Boolean
+    else error ("Type mismatch in Eq: no coinciden los tipos")
+
+typeEAB ctx (If e1 e2 e3) =
+    if typeEAB ctx e1 == Boolean then
+        let t2 = typeEAB ctx e2
+            t3 = typeEAB ctx e3
+        in if t2 == t3 then t2
+           else error ("Type mismatch in If branches: las ramas difieren")
+    else error ("Expected Boolean: (" ++ show e1 ++ ")")
+
+typeEAB ctx (Let x e1 e2) =
+    typeEAB ((x, typeEAB ctx e1):ctx) e2
+
+
+evalEst :: EAB -> Either Int Bool
+evalEst e = 
+    let _validarTipado = typeEAB [] e
+    in eval [] e
