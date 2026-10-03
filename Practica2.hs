@@ -1,7 +1,6 @@
---INTEGRANTES:
--Emilio Bocanegra Paniagua
--Juan Diego Hernández Becerril
--Cristopher Emiliano Carrada
+-- ==========================================
+-- 1 INTRODUCCIÓN
+-- ==========================================
 type ID = String
 data EAB = Num Int | Var ID | Bool Bool
          | Suma EAB EAB | Prod EAB EAB
@@ -96,6 +95,10 @@ sust x e (Let a b c)
     where
         aEstaEnE = sust a (Var "var") e /= e
         xEstaEnC = sust x (Var "var") c /= c
+
+-- ==========================================
+-- 2 SEMÁNTICA DINÁMICA
+-- ==========================================
 
 --Funcion evalStep
 
