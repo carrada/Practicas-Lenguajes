@@ -97,6 +97,7 @@ betaR e = case betaStep e of
                Just e' -> betaR e'
                Nothing -> e
 
+-- Función auxiliar betaStep qeu realiza un paso de beta rducción
 betaStep :: LNLambda -> Maybe LNLambda
 betaStep (AppL (AbsL body) arg) = Just (subst (varOpen body (0, "z")) ("z", arg))
 betaStep (AppL l1 l2)           = case betaStep l1 of
